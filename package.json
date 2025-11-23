@@ -1,0 +1,29 @@
+{
+  "name": "devmet",
+  "version": "1.0.0",
+  "description": "nodejs be for dev tinder",
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "express"
+  ],
+  "license": "ISC",
+  "author": "Ravikumar Y",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/app.js"
+    
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

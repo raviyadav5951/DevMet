@@ -8,6 +8,8 @@ app.get("/", (req, res) => {
   res.send("Hello from server");
 });
 
+
+
 //middleware usecase ep-5
 //e.g when using the routes which are protected and need authentication
 //for all request like get, post , put , delete we can use middleware
@@ -72,8 +74,25 @@ app.use("/usernew", [
   },
 ]);
 
+//to handle the error in express for all routes
+app.use("/giveError", (req, res, next) => {
+  // try {
+    throw new Error("This is a forced error.");
+    res.send("This is giveError endpoint error");
+  // } catch (error) {
+  //   res.status(500).send("This is giveError endpoint");
+  // }
+  
+});
+
+//errro handling middleware
+app.use("/",(err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
-//advaanced routing example

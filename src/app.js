@@ -1,10 +1,28 @@
 const express = require("express");
 
 const app = express();
+const { adminAuth ,userAuth} = require("./middlewares/auth");
 const port = 3000;
 
 app.get("/", (req, res) => {
   res.send("Hello from server");
+});
+
+//middleware usecase ep-5
+//e.g when using the routes which are protected and need authentication
+//for all request like get, post , put , delete we can use middleware
+//we will use app.use for middleware
+
+app.use("/admin", adminAuth);
+
+app.get("/admin/getAllData", (req, res) => {
+  console.log("getAllData called");
+  res.send("This is admin getAllData endpoint");
+});
+
+app.get("/admin/deleteData", (req, res) => {
+  console.log("deleteData called");
+  res.send("This is admin deleteData endpoint");
 });
 
 app.get("/test", (req, res) => {
@@ -14,7 +32,7 @@ app.get("/test", (req, res) => {
 //ab?c, ab+c, ab*c, ab(cde)?f
 //we can create regex of routes also
 
-app.get("/user/:id", (req, res) => {
+app.get("/user/:id", userAuth,(req, res) => {
   console.log(req.params);
 
   res.send(`User ID created`);

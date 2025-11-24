@@ -1,0 +1,2 @@
+- Middleware to separate the routes
+- E.g Admin routes or protected routes

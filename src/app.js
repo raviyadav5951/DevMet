@@ -1,98 +1,134 @@
 const express = require("express");
-
+const connectDB = require("./configs/database");
+const User = require("./model/user");
 const app = express();
-const { adminAuth ,userAuth} = require("./middlewares/auth");
-const port = 3000;
+require('dotenv').config()
 
-app.get("/", (req, res) => {
-  res.send("Hello from server");
-});
+//middleware to parse JSON request bodies
+app.use(express.json());
 
-
-
-//middleware usecase ep-5
-//e.g when using the routes which are protected and need authentication
-//for all request like get, post , put , delete we can use middleware
-//we will use app.use for middleware
-
-app.use("/admin", adminAuth);
-
-app.get("/admin/getAllData", (req, res) => {
-  console.log("getAllData called");
-  res.send("This is admin getAllData endpoint");
-});
-
-app.get("/admin/deleteData", (req, res) => {
-  console.log("deleteData called");
-  res.send("This is admin deleteData endpoint");
-});
-
-app.get("/test", (req, res) => {
-  res.send("This is a test endpoint dashboard");
-});
-
-//ab?c, ab+c, ab*c, ab(cde)?f
-//we can create regex of routes also
-
-app.get("/user/:id", userAuth,(req, res) => {
-  console.log(req.params);
-
-  res.send(`User ID created`);
-});
-
-//Multiple route handlers
-
-//next can call to next route , but it should be called only if res.send is not called
-app.use(
-  "/user",
-  (req, res, next) => {
-    console.log("rh1");
-    // res.send("Response from rh1");
-    next();
-  },
-
-  (req, res, next) => {
-    console.log("rh2");
-    res.send("Response from rh2");
-    next();
-  }
-);
-
-//we can also use array of handlers
-
-app.use("/usernew", [
-  (req, res, next) => {
-    console.log("rh1");
-    // res.send("Response from rh1");
-    next();
-  },
-
-  (req, res, next) => {
-    console.log("rh2");
-    res.send("Response from rh2");
-    next();
-  },
-]);
-
-//to handle the error in express for all routes
-app.use("/giveError", (req, res, next) => {
-  // try {
-    throw new Error("This is a forced error.");
-    res.send("This is giveError endpoint error");
-  // } catch (error) {
-  //   res.status(500).send("This is giveError endpoint");
+app.post("/signup", async (req, res) => {
+  // const userObject = {
+  //   firstName: req.body.firstName,
+  //   lastName: req.body.lastName,
+  //   emailId: req.body.emailId,
+  //   password: req.body.password,
+  //   age: req.body.age,
+  //   gender: req.body
   // }
+
+  // const userObject = {
+  //   firstName: "Ravi",
+  //   lastName: "Yadav",
+  //   emailId: "test@test.com",
+  //   password: "123456",
+  //   age: 34,
+  //   gender: "male",
+  // };
+
+  //creating new instance of User model
+  // const user = new User(userObject);
+
+  //getting user data from request body dynamically
+
+  const user = new User(req.body);
+  user
+    .save()
+    .then((savedUser) => {
+      console.log("User saved successfully:", savedUser);
+      res.status(201).json({
+        message: "User signed up successfully",
+        userId: savedUser._id,
+      });
+    })
+    .catch((err) => {
+      console.log("Error saving user:", err);
+      res.status(400).json({ message: "Something went wrong" });
+    });
+});
+
+//get user by email id
+
+app.get("/getUser", async (req, res) => {
+  try {
+    const emailId = req.query.emailId;
+    console.log(emailId);
+    const userObject = await User.findOne({ emailId: emailId }).exec();
+
+    console.log(userObject);
+    if (!userObject) {
+      throw new Error("User not found");
+    }
+    res.status(200).send(userObject);
+  } catch (error) {
+    res.status(400).json({ message: "Sorry, user not found" });
+  }
+});
+
+//get all users
+
+app.get("/feed", async (req, res) => {
+  try {
+    const userObject = await User.find({});
+    res.status(200).send(userObject);
+  } catch (error) {
+    res.status(400).json({ message: "Sorry, something went wrong" });
+  }
+});
+
+//delete user by id
+
+app.delete("/user", async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    await User.findByIdAndDelete(userId)
+    
+    res.send("User deleted successfully");
+  } catch (error) {
+    res.status(400).json({ message: "something went wrong" });
+  }
+});
+
+//update user by id
+
+app.patch("/user", async (req, res) => { 
+  try { 
+    const userId = req.body.userId;
+    const data = req.body;
+    await User.findByIdAndUpdate({ _id: userId }, data);
+    
+    res.send("User updated successfully");
+  }
+  catch (error) {
+    res.status(400).json({ message: "Something went wrong" });
+  }
+
   
 });
 
-//errro handling middleware
-app.use("/",(err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
+//update user by email id
+app.patch("/userByEmail", async (req, res) => { 
+
+  try {
+    const emailId = req.body.emailId;
+    const data = req.body;
+    
+    await User.findOneAndUpdate({ emailId: emailId }, data);
+    res.send("User updated successfully");
+    
+  } catch (error) {
+    res.status(400).json({ message: "Something went wrong" });
+  }
+
 });
 
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
-
+connectDB()
+  .then(() => {
+    console.log("DB connection successful");
+    app.listen(3000, () => {
+      console.log("Server running at http://localhost:3000");
+    });
+  })
+  .catch((err) => {
+    console.log("DB connection error:", err);
+  });

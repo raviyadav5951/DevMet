@@ -2,21 +2,12 @@ const express = require("express");
 const connectDB = require("./configs/database");
 const User = require("./model/user");
 const app = express();
-require('dotenv').config()
+require("dotenv").config();
 
 //middleware to parse JSON request bodies
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  // const userObject = {
-  //   firstName: req.body.firstName,
-  //   lastName: req.body.lastName,
-  //   emailId: req.body.emailId,
-  //   password: req.body.password,
-  //   age: req.body.age,
-  //   gender: req.body
-  // }
-
   // const userObject = {
   //   firstName: "Ravi",
   //   lastName: "Yadav",
@@ -42,8 +33,8 @@ app.post("/signup", async (req, res) => {
       });
     })
     .catch((err) => {
-      console.log("Error saving user:", err);
-      res.status(400).json({ message: "Something went wrong" });
+      console.log("Error saving user:", err.message);
+      res.status(400).json({ message: err.message });
     });
 });
 
@@ -52,7 +43,6 @@ app.post("/signup", async (req, res) => {
 app.get("/getUser", async (req, res) => {
   try {
     const emailId = req.query.emailId;
-    console.log(emailId);
     const userObject = await User.findOne({ emailId: emailId }).exec();
 
     console.log(userObject);
@@ -61,7 +51,7 @@ app.get("/getUser", async (req, res) => {
     }
     res.status(200).send(userObject);
   } catch (error) {
-    res.status(400).json({ message: "Sorry, user not found" });
+    res.status(400).json({ message: "Sorry, user not found" + error.message });
   }
 });
 
@@ -72,7 +62,9 @@ app.get("/feed", async (req, res) => {
     const userObject = await User.find({});
     res.status(200).send(userObject);
   } catch (error) {
-    res.status(400).json({ message: "Sorry, something went wrong" });
+    res
+      .status(400)
+      .json({ message: "Sorry, something went wrong" + error.message });
   }
 });
 
@@ -81,45 +73,69 @@ app.get("/feed", async (req, res) => {
 app.delete("/user", async (req, res) => {
   try {
     const userId = req.body.userId;
-    await User.findByIdAndDelete(userId)
-    
+    await User.findByIdAndDelete(userId);
+
     res.send("User deleted successfully");
   } catch (error) {
-    res.status(400).json({ message: "something went wrong" });
+    res.status(400).json({ message: "something went wrong" + error.message });
   }
 });
 
 //update user by id
 
-app.patch("/user", async (req, res) => { 
-  try { 
-    const userId = req.body.userId;
-    const data = req.body;
-    await User.findByIdAndUpdate({ _id: userId }, data);
-    
-    res.send("User updated successfully");
-  }
-  catch (error) {
-    res.status(400).json({ message: "Something went wrong" });
-  }
+app.patch("/user/:userId", async (req, res) => {
+  try {
+    // const userId = req.body.userId;
+    const userId = req.params?.userId;
 
-  
+    console.log("UserId:", userId);
+    const data = req.body;
+
+    const ALLOWED_UPDATES = [
+      "firstName",
+      "lastName",
+      "password",
+      "age",
+      "gender",
+      "photoUrl",
+      "about",
+      "skills",
+    ];
+
+    const isUpdateAllowed = Object.keys(data).every((key) => {
+      // console.log(key);
+
+      return ALLOWED_UPDATES.includes(key);
+    });
+
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+
+    await User.findByIdAndUpdate({ _id: userId }, data, {
+      runValidators: true,
+    });
+
+    res.send("User updated successfully");
+  } catch (error) {
+    console.log(error);
+    res
+      .status(400)
+      .json({ message: "Something went wrong", error: error.message });
+  }
 });
 
 //update user by email id
-app.patch("/userByEmail", async (req, res) => { 
-
+app.patch("/userByEmail", async (req, res) => {
   try {
     const emailId = req.body.emailId;
     const data = req.body;
-    
+
     await User.findOneAndUpdate({ emailId: emailId }, data);
     res.send("User updated successfully");
-    
   } catch (error) {
-    res.status(400).json({ message: "Something went wrong" });
+    res.status(400).json({ message: "Something went wrong" + error.message });
   }
-
 });
 
 connectDB()

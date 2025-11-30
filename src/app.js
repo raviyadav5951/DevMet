@@ -1,6 +1,10 @@
 const express = require("express");
 const connectDB = require("./configs/database");
 const User = require("./model/user");
+const bcrypt = require("bcrypt");
+const { validateSignUpData } = require("./utils/validations");
+const validator = require("validator");
+
 const app = express();
 require("dotenv").config();
 
@@ -22,20 +26,59 @@ app.post("/signup", async (req, res) => {
 
   //getting user data from request body dynamically
 
-  const user = new User(req.body);
-  user
-    .save()
-    .then((savedUser) => {
-      console.log("User saved successfully:", savedUser);
-      res.status(201).json({
-        message: "User signed up successfully",
-        userId: savedUser._id,
-      });
-    })
-    .catch((err) => {
-      console.log("Error saving user:", err.message);
-      res.status(400).json({ message: err.message });
+  try {
+    validateSignUpData(req);
+
+    //encrypt password
+    const { firstName, lastName, emailId, password, age, gender, skills } =
+      req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+      age,
+      gender,
+      skills,
     });
+    const savedUser = await user.save();
+    // console.log("User saved successfully:", savedUser);
+    res.status(201).json({
+      message: "User signed up successfully",
+      userId: savedUser._id,
+    });
+  } catch (error) {
+    console.log("Error saving user:" + error.message);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+//login api
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Invalid email address");
+    }
+
+    const user = await User.findOne({ emailId: emailId }).exec();
+    // console.log(user);
+    if (user) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (isPasswordValid) {
+        res.send("user logged in successfully");
+      } else {
+        throw new Error("Invalid login credentials");
+      }
+    } else {
+      throw new Error("Invalid login credentials");
+    }
+  } catch (error) {
+    res.status(400).json({ message: "Login failed:" + error.message });
+  }
 });
 
 //get user by email id

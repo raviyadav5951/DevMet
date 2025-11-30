@@ -20,3 +20,6 @@
 - Added schema validation for email using validator.js npm library
 - NEVER TRUST req.body (always add schema or api level validation)
 
+## Ep9 Password encruption
+
+- Using bcrypt for password encryption

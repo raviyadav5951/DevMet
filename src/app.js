@@ -65,7 +65,7 @@ app.post("/login", async (req, res) => {
     }
 
     const user = await User.findOne({ emailId: emailId }).exec();
-    console.log(user);
+    // console.log(user);
     if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (isPasswordValid) {

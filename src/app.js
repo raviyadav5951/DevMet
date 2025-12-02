@@ -4,12 +4,17 @@ const User = require("./model/user");
 const bcrypt = require("bcrypt");
 const { validateSignUpData } = require("./utils/validations");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 require("dotenv").config();
 
 //middleware to parse JSON request bodies
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   // const userObject = {
@@ -69,6 +74,9 @@ app.post("/login", async (req, res) => {
     if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (isPasswordValid) {
+        // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {expiresIn:"1h"});
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+        res.cookie("token", token);
         res.send("user logged in successfully");
       } else {
         throw new Error("Invalid login credentials");
@@ -76,6 +84,34 @@ app.post("/login", async (req, res) => {
     } else {
       throw new Error("Invalid login credentials");
     }
+  } catch (error) {
+    res.status(400).json({ message: "Login failed:" + error.message });
+  }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    //moving this code to auth middleware
+
+    const user = req.user;
+    res.status(200).send(user);
+
+    /*const { token } = req.cookies;
+    console.log("Token:", token);
+
+    if (!token) {
+      throw new Error("Unauthorized access, token missing");
+    }
+
+    const decoded = jwt.verify(token, "shhhhh");
+    const { _id } = decoded;
+
+    const user = await User.findById(_id).exec();
+    if (!user) {
+      throw new Error("User not found");
+    } else {
+      res.status(200).send(user);
+    }*/
   } catch (error) {
     res.status(400).json({ message: "Login failed:" + error.message });
   }

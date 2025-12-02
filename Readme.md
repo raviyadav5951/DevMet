@@ -1,4 +1,5 @@
 - Middleware to separate the routes
+- next() to process to next code 
 - E.g Admin routes or protected routes
 - Error handing at the end
 
@@ -23,3 +24,11 @@
 ## Ep9 Password encruption
 
 - Using bcrypt for password encryption
+
+## Ep10 JWT,Cookie
+- JWT using npm package [text](https://www.npmjs.com/package/jsonwebtoken)
+- Cookie parser using middleware [text](https://www.npmjs.com/package/cookie-parser)
+- First send signed JWT on succesful login
+- On every api create auth middleware to first verify token before proceeding
+- We can set expiry on cookie , also we can create expiresIn for JWT token [(0d) to simulate ]
+

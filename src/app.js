@@ -72,10 +72,14 @@ app.post("/login", async (req, res) => {
     const user = await User.findOne({ emailId: emailId }).exec();
     // console.log(user);
     if (user) {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      //validate password using user schema method
+      const isPasswordValid = user.validatePassword(password);
       if (isPasswordValid) {
         // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {expiresIn:"1h"});
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+        // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+        
+        //getting token using user schema method
+        const token = await user.getJWTToken();
         res.cookie("token", token);
         res.send("user logged in successfully");
       } else {

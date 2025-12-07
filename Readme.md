@@ -32,3 +32,16 @@
 - On every api create auth middleware to first verify token before proceeding
 - We can set expiry on cookie , also we can create expiresIn for JWT token [(0d) to simulate ]
 
+## Ep11 : Router
+- Separate the all apis from app.js into different routers
+- Creating grpuping of apis
+- Listed all the apis in apiList.md
+
+## Ep 12 Index DB Query and compound index
+- Compund Index [text](https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/)
+- Created connnectionRequest schema to store connection request
+- Covered corner cases in send connection api
+- Used 'pre' schema hook for schema validation
+- Mongo db 'or' query used to compare two condition when doing findOne
+- Why we need index in DB?
+- Advantages & Disadvantages of indexing

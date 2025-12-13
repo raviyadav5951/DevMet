@@ -61,14 +61,59 @@ requestRouter.post(
 
       let message;
       if (status === "ignored") {
-        message = `${req.user.firstName}  ${status}  ${toUser.firstName}`
-      }
-      else if (status === "interested") { 
-        message=`${req.user.firstName}  is ${status} in  ${toUser.firstName}`
+        message = `${req.user.firstName}  ${status}  ${toUser.firstName}`;
+      } else if (status === "interested") {
+        message = `${req.user.firstName}  is ${status} in  ${toUser.firstName}`;
       }
 
       res.json({
         message,
+        data: data,
+      });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
+
+//accepting or rejecting the request
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const allowedStatuses = ["accepted", "rejected"];
+      const loggedInUser = req.user;
+
+      //requestId is required to identify which request to be accepted or rejected
+
+      const { requestId, status } = req.params;
+
+      if (!allowedStatuses.includes(status)) {
+        throw new Error("Invalid status value :" + status);
+      }
+
+      //checking if logged user is same as the toUserId in connection request
+      //BIfurcate this api as user is logged in and checking the request recieved by him/her
+
+      const toUserId = loggedInUser._id;
+
+      //find the connection request
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: toUserId,
+        status: "interested", //only interested requests can be accepted or rejected
+      }).populate("fromUserId","firstName lastName").exec();
+
+      if (!connectionRequest) {
+        throw new Error("Connection request not found");
+      }
+
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+
+      res.json({
+        message: `Connection request ${status} successfully`,
         data: data,
       });
     } catch (error) {

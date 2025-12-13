@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ref } = require('process')
 const { Schema } = mongoose;
 
 const connectionRequestSchema = new Schema(
@@ -6,10 +7,12 @@ const connectionRequestSchema = new Schema(
     fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: 'User' // IMP : Reference to User model
     },
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: 'User' // IMP : Reference to User model
     },
 
     status: {

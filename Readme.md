@@ -45,3 +45,14 @@
 - Mongo db 'or' query used to compare two condition when doing findOne
 - Why we need index in DB?
 - Advantages & Disadvantages of indexing
+
+## Ep 13 Review request
+- Create review request api (find record id , if status is interested and then update the status)
+- Create ref (relation) between two models
+- Populate [map other collection] (https://mongoosejs.com/docs/populate.html)
+- or mongo query const connectionRequests = await ConnectionRequest.find({
+      $or: [
+        { fromUserId: loggedInUser._id, status: "accepted" },
+        { toUserId: loggedInUser._id, status: "accepted" },
+      ],
+    })

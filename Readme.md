@@ -5,7 +5,7 @@
 
 ## Ep 6 DB schema and models
 
-- Mongoose doc [text](https://mongoosejs.com/docs/guide.html)
+- Mongoose doc [Mongoose doc](https://mongoosejs.com/docs/guide.html)
 - Creating schema first and then creating model
 - CRUD api methods
 - Env setup
@@ -27,8 +27,8 @@
 
 ## Ep10 JWT,Cookie
 
-- JWT using npm package [text](https://www.npmjs.com/package/jsonwebtoken)
-- Cookie parser using middleware [text](https://www.npmjs.com/package/cookie-parser)
+- JWT using npm package [JWT NPM](https://www.npmjs.com/package/jsonwebtoken)
+- Cookie parser using middleware [Cookie parser](https://www.npmjs.com/package/cookie-parser)
 - First send signed JWT on succesful login
 - On every api create auth middleware to first verify token before proceeding
 - We can set expiry on cookie , also we can create expiresIn for JWT token [(0d) to simulate ]
@@ -41,7 +41,7 @@
 
 ## Ep 12 Index DB Query and compound index
 
-- Compund Index [text](https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/)
+- Compund Index [Compund Index ](https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/)
 - Created connnectionRequest schema to store connection request
 - Covered corner cases in send connection api
 - Used 'pre' schema hook for schema validation
